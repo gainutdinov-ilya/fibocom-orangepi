@@ -5,22 +5,27 @@ import json
 import re
 import sys
 import time
+import socket
+import datetime
+import sys
 
 def __debug_message(data):
     global debug
+    time = datetime.datetime.now().ctime()
     if debug:
-        print(data)
+        print(f"{time} FibocomUtils: {data}")
 
 
 def __invoke_modem_command(modem_number: int, command: str, wait = 1) -> str:
     global debug
-    if debug:
+    if True:
         print(f"Invoke command: {command} For modem: {modem_number}...", end="")
     process = subprocess.Popen(['mmcli', '-m', str(modem_number), f"--command={command}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(wait)
     stdout, stderr = process.communicate()
     process.wait()
     stdout = stdout.decode("UTF-8")
+    stdout = stdout.replace('\n', '')
     if stdout.startswith("error"):
         if debug:
             print(f"FALL")
@@ -43,7 +48,7 @@ def setup_connection() -> bool:
         time.sleep(3)
         attempts += 1
         if attempts == 5:
-            __debug_message("FAILED TO SETUP CONNECTION\nReason: Modem not found")
+            __debug_message("Can't connect, modem not found")
             return False
         
 
@@ -79,27 +84,30 @@ def setup_connection() -> bool:
 
     global bridge_interface, modem_interface
     subprocess.Popen(["systemctl", "restart", "isc-dhcp-server"]).wait()
-    subprocess.Popen(["./setup_net", bridge_interface, modem_interface, ip]).wait()
+    subprocess.Popen(["/opt/fibocom/script_helpers/setup_net", bridge_interface, modem_interface, ip]).wait()
+    time.sleep(10)
     return True
 
 
 def restart_modem() -> bool:
+    __debug_message("Try to restart modem...")
     global modem
-
     attempts = 0
     while modem == -1:
         get_connected_modem()
         time.sleep(3)
         attempts += 1
         if attempts == 5 and modem == -1:
-            __debug_message("FAIED TO SETUP CONNECTION\nReason: Modem not found")
-        return False
+            __debug_message("RestartModem: Fail - modem not found")
+            return False
 
     command = "AT+CFUN=15"
     r = __invoke_modem_command(modem, command)
     if r == 'e':
         __debug_message("Failed to restart Modem")
         return False
+    __debug_message(r)
+    __debug_message("Restarting modem. Please Wait")
     return True
 
 
@@ -116,7 +124,10 @@ def get_connected_modem() -> int:
     global modem
     process_data = __invoke_bash_command(["mmcli", "-L", "-J"])
     __debug_message(f"GetConnectedModem mmcli return: {process_data}")
-    mmcli_data = json.loads(process_data)
+    try:
+        mmcli_data = json.loads(process_data)
+    except:
+        return -1
     re_modem_number = r"[0-9]$"
     if len(mmcli_data['modem-list']) == 0:
         __debug_message("GetConnectedModemError: Modem not available")
@@ -132,10 +143,13 @@ def get_connected_modem() -> int:
 def get_modem_temp():
     global modem
     get_connected_modem()
-    out = __invoke_modem_command(modem, "AT+MTSM=1", 0)
+    out = __invoke_modem_command(modem, "AT+MTSM=1", 1)
     re_rule = r"'[\s\d\w\D]*"
-    result = re.findall(re_rule, out).pop()
-    temp = re.findall(r"[0-9]{2}", result).pop()
+    result = re.findall(re_rule, out)
+    if len(result) == 0:
+        return -1
+    
+    temp = re.findall(r"[0-9]{2}", result.pop()).pop()
     return temp
 
 def get_signal_strength():
@@ -192,14 +206,57 @@ def get_modem_info():
     info = __invoke_bash_command(["mmcli", "-m", str(modem), "-J"])
     return json.loads(info)
 
+def __online():
+    try:
+        host = "8.8.8.8"
+        port = 53
+        timeout = 3
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        __debug_message("Online: YES")
+        return True
+    except socket.error as err: 
+        __debug_message("Online: NO")
+        return False
+
+def __interface_with_ip():
+    global modem_interface
+    ip_addr = __invoke_bash_command(["ifconfig", modem_interface])
+    re_parse_ip = r"inet [0-9.]+"
+    find = re.findall(re_parse_ip, ip_addr)
+    if len(find) == 0:
+        return False
+    else:
+        return True
+
+
+def __connection_watcher():
+    global modem, debug, modem_interface
+    while modem == -1:
+        __debug_message("Wait Modem...")
+        modem = get_connected_modem()
+        time.sleep(3)
+    if not __online():
+        if __interface_with_ip():
+            restart_modem()
+        setup_connection()
+    while __online():
+        time.sleep(30)
+    else:
+        restart_modem()
+        __connection_watcher()
+
+
+def print_help():
+    print("?")
+
 if __name__ == "__main__":
     debug = True
-    while modem == -1:
-        get_connected_modem()
-        time.sleep(3)
-        __debug_message("FAILED TO SETUP CONNECTION\nReason: Modem not found")
-    setup_connection()
-
-def get_timings():
-    global timings
-    return timings
+    if len(sys.argv) <= 1:
+        __connection_watcher()
+    elif len(sys.argv) > 2:
+        print_help()
+    if sys.argv[1] == "--restart":
+        restart_modem()
+    else:
+        print_help()

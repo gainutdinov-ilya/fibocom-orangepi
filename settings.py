@@ -20,7 +20,7 @@ commands = [
     'AT+CGCONTRDP=1'
 ]
 modem = -1
-debug = False
+debug = True
 ip = "Not Connected"
 
 bridge_interface = "br0"

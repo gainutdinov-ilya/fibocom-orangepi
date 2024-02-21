@@ -26,8 +26,8 @@ container = {
     "metric_imbal": [],
 }
 
-get_metrics_thread = threading.Thread(target=web_helpers.webInfo, args=[container])
-get_metrics_thread.start()
+metrics_thread = threading.Thread(target=web_helpers.webInfo, args=[container], daemon=True)
+metrics_thread.start()
 
 app.mount("/static" , StaticFiles(directory="static"), name="static")
 

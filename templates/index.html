@@ -12,6 +12,7 @@
 <body>
     <div class="container">
         <h1 class="display-1">Статистика</h1>
+        <h3 id="ws-state" class="h6"></h3>
         <h3 id="cputemp" class="h6"># Температура процессора: {{temp_cpu}}</h3>
         <h3 id="modemtemp" class="h6"># Температура модема: {{temp_modem}}</h3>
         <h3 id="signalstrength" class="h6"># Уровень сигнала: {{signal_strenth}}</h3>
@@ -38,8 +39,9 @@
                 {% endfor %}
             </tbody>
         </table>
-        <h4 class="h4">Метрики сигнала</h4>
+        <h4 class="h4">Температуры</h4>
         <canvas id="ModemTemp"></canvas>
+        <h4 class="h4">Метрики сигнала</h4>
         <canvas id="SignalInfo"></canvas>
         <canvas id="MetricRspr"></canvas>
         <canvas id="MetricRsrq"></canvas>

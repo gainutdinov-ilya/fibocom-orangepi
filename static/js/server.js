@@ -1,6 +1,6 @@
 var ws = new WebSocket("ws://".concat(document.location.host).concat("/ws"));
 
-ws.onmessage = function(event) {
+const wsOnMessage = function(event) {
     let data = JSON.parse(event.data);
     switch(data.type)
     {
@@ -19,12 +19,30 @@ ws.onmessage = function(event) {
             updateMetricImbalChart(data.data['metric_imbal'] ,data.data['timestamps']);
             break;
     }
-}
+};
+
+const wsOnOpen = () => {
+    document.getElementById("ws-state").innerText = "Подключен к серверу";
+};
+
+const wsOnClose = () => {
+    document.getElementById("ws-state").innerText = "Попытка восставновить подключение"
+    setTimeout(() => {
+        ws = new WebSocket("ws://".concat(document.location.host).concat("/ws"));
+        ws.onclose = wsOnClose;
+        ws.onopen = wsOnOpen;
+        ws.onmessage = wsOnMessage;
+    }, 5000)
+};
+
+ws.onclose = wsOnClose;
+ws.onopen = wsOnOpen;
+ws.onmessage = wsOnMessage;
 
 function callWsMethod(method)
 {
     let data = {"method": method};
-    if(ws.readyState == WebSocket.CLOSED)
+    if(ws.readyState != WebSocket.OPEN)
     {
         return;
     }
