@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /srv/share/OpiWebIFace
+
+uvicorn main:app --reload --host 192.168.0.1 --port 4444 --root-path=/srv/share/OpiWebIFace

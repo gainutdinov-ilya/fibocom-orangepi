@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>OpiWifi</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="display-1">Статистика</h1>
+        <h3 id="cputemp" class="h6"># Температура процессора: {{temp_cpu}}</h3>
+        <h3 id="modemtemp" class="h6"># Температура модема: {{temp_modem}}</h3>
+        <h3 id="signalstrength" class="h6"># Уровень сигнала: {{signal_strenth}}</h3>
+        <h3 id="conn-list" class="h6"># Список подключений DHCP</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">MAC</th>
+                    <th scope="col">HOSTNAME</th>
+                    <th scope="col">IP</th>
+                    <th scope="col">START</th>
+                    <th scope="col">END</th>
+                </tr>
+            </thead>
+            <tbody id="dhcplist">
+                {% for lease in leases %}
+                <tr>
+                    <td>{{lease.MAC}}</td>
+                    <td>{{lease.HOSTNAME}}</td>
+                    <td>{{lease.IP}}</td>
+                    <td>{{lease.START}}</td>
+                    <td>{{lease.END}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h4 class="h4">Метрики сигнала</h4>
+        <canvas id="ModemTemp"></canvas>
+        <canvas id="SignalInfo"></canvas>
+        <canvas id="MetricRspr"></canvas>
+        <canvas id="MetricRsrq"></canvas>
+        <canvas id="MetricRssnr"></canvas>
+        <canvas id="MetricImbal"></canvas>
+    </div>
+</body>
+<style>
+
+</style>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/chart.js"></script>
+<script src="/static/js/modem-temp-chart.js"></script>
+<script src="/static/js/signal-level-chart.js"></script>
+<script src="/static/js/rspr-metric-chart.js"></script>
+<script src="/static/js/rsrq-metric-chart.js"></script>
+<script src="/static/js/rssnr-metric-chart.js"></script>
+<script src="/static/js/imbal-metric-chart.js"></script>
+<script src="/static/js/server.js"></script>
+
+</html>

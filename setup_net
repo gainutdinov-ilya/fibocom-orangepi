@@ -1,0 +1,7 @@
+#!/bin/bash
+iptables -A FORWARD -i $1 -o $2 -j  ACCEPT
+iptables -A FORWARD -i $2 -o $1 -j ACCEPT
+iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
+
+ifconfig $2 -arp $3
+route add -net default dev $2
