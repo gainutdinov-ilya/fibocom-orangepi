@@ -4,6 +4,7 @@ from settings import *
 import time
 import datetime
 import sys_utils
+from oled_thread import *
 
 debug = False
 
@@ -20,15 +21,22 @@ container_test = {
 }
 
 
+
 def __logger(message):
     time = datetime.datetime.now().isoformat()
     print(f"{time} WebinfoHelpers: {message}")
 
 def webInfo(container):
     __logger("Started")
+    aoh = AsyncOledHelper()
+    aoh.addText("CPU: ?")
+    aoh.addText("MODEM: ?")
+    aoh.addText("SIGNAL: ?")
+    aoh.addText("CONNECT: ?")
+    aoh.addText("UP: ? DOWN: ?")
     global timings, timings_length, modem, debug
     debug = True
-    update_time = 1
+    update_time = 0.2
     while True:
         if modem == -1:
             __logger("Wait modem...")
@@ -58,6 +66,19 @@ def webInfo(container):
         container['metric_rssnr'].append(metrics['rssnr'])
         container['metric_imbal'].append(metrics['imbal'])
         __logger("Info Succesfully updated!")
+
+
+        bw = sys_utils.get_network_speed()
+        online = fibocom_utils.__online()
+        if not online:
+            online = "FAIL"
+        else:
+            online = "OK"
+        aoh.editText(f"CPU: {sys_utils.get_cpu_temp()}", 0)
+        aoh.editText(f"MODEM: {temp}", 1)
+        aoh.editText(f"SIGNAL: {signal_strength}", 2)
+        aoh.editText(f"CONNECT: {online}", 3)
+        aoh.editText(f"UP: {bw[1]} DOWN: {bw[0]}", 4)
         time.sleep(update_time)
   
   
