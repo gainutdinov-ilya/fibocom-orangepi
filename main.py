@@ -10,7 +10,7 @@ import starlette
 import fibocom_utils
 import threading
 import web_helpers
-
+from oled_thread import AsyncOledHelper
 MODEM_STATUS = 0
 
 app = FastAPI()
@@ -26,7 +26,8 @@ container = {
     "metric_imbal": [],
 }
 
-metrics_thread = threading.Thread(target=web_helpers.webInfo, args=[container], daemon=True)
+aoh = AsyncOledHelper()
+metrics_thread = threading.Thread(target=web_helpers.webInfo, args=[container, aoh], daemon=True)
 metrics_thread.start()
 
 app.mount("/static" , StaticFiles(directory="static"), name="static")
@@ -51,7 +52,7 @@ async def get_dhcp_lease_list_json(request: Request):
 
 @app.websocket("/ws")
 async def websoket_handler(websocket: WebSocket):
-    global container
+    global container, aoh
     try:
         await websocket.accept()
         while True:
@@ -76,6 +77,11 @@ async def websoket_handler(websocket: WebSocket):
             elif  parsed_data["method"] == "get_metrics":
                 response = {"type": parsed_data['method'], "data": container}
                 await websocket.send_text(json.dumps(response))
+            elif parsed_data["method"] == "set_oled":
+                if int(parsed_data["data"]) == 0:
+                    aoh.relaseText()
+                else:
+                    aoh.fixText(int(parsed_data["data"]))
 
     except starlette.websockets.WebSocketDisconnect:
         return

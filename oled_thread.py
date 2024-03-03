@@ -13,7 +13,8 @@ class AsyncOledHelper:
         self.lineTimer += 1
         if self.lineTimer >= self.width:
             self.lineTimer = 0
-            self.textContainerCounter += 1
+            if not self.containerFixed:
+                self.textContainerCounter += 1
             time.sleep(0.3)
             if self.textContainerCounter >= len(self.textContainer):
                 self.textContainerCounter = 0
@@ -49,6 +50,13 @@ class AsyncOledHelper:
             self.__handle_counters()
             time.sleep(self.sleepTime)
         
+    def fixText(self, counter):
+        self.textContainerCounter = counter
+        self.containerFixed = True
+
+    def relaseText(self):
+        self.textContainerCounter = 0
+        self.containerFixed = False
 
     def addText(self, text):
         self.textContainer.append(text)
@@ -80,6 +88,7 @@ class AsyncOledHelper:
         self.lineTimer = 0
         self.lineTimerSpeed = speed
         self.sleepTime = sleepTime
+        self.containerFixed = False
         #StartThread
         self.thread = threading.Thread(target=self.__thread_worker, args=[])
         self.thread.start()

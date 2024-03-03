@@ -39,6 +39,18 @@ ws.onclose = wsOnClose;
 ws.onopen = wsOnOpen;
 ws.onmessage = wsOnMessage;
 
+
+//Oled Control 
+const oledSelector = document.getElementById("oled_selector");
+oledSelector.onchange = (event) => {
+    let data = {"method": "set_oled", "data": event.target.value};
+    if(ws.readyState != WebSocket.OPEN)
+    {
+        return;
+    }
+    ws.send(JSON.stringify(data));
+};
+
 function callWsMethod(method)
 {
     let data = {"method": method};

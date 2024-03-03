@@ -16,6 +16,13 @@
         <h3 id="cputemp" class="h6"># Температура процессора: {{temp_cpu}}</h3>
         <h3 id="modemtemp" class="h6"># Температура модема: {{temp_modem}}</h3>
         <h3 id="signalstrength" class="h6"># Уровень сигнала: {{signal_strenth}}</h3>
+        <h3 class="h6">Зафиксировать информацию на дисплее</h3>
+        <select id="oled_selector" class="form-select">
+            <option selected value="0">Никакую</option>
+            <option value="2">Уровень сигнала</option>
+            <option value="4">Пропускную способность (Скачивание)</option>
+            <option value="5">Пропускную способность (Отдачу)</option>
+        </select>
         <h3 id="conn-list" class="h6"># Список подключений DHCP</h3>
         <table class="table">
             <thead>
@@ -61,5 +68,4 @@
 <script src="/static/js/rssnr-metric-chart.js"></script>
 <script src="/static/js/imbal-metric-chart.js"></script>
 <script src="/static/js/server.js"></script>
-
 </html>

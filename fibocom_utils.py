@@ -158,7 +158,7 @@ def get_signal_strength():
     out = __invoke_modem_command(modem, "AT+RSRP?", 0)
     re_match_numbers = r"[\d.]*,"
     parsed_numbers = re.findall(re_match_numbers, out)
-    if len(parsed_numbers) < 2:
+    if len(parsed_numbers) < 3:
         return -130
     signal_strength = parsed_numbers[2]
     signal_strength = signal_strength.replace(",",'')

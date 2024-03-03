@@ -26,14 +26,14 @@ def __logger(message):
     time = datetime.datetime.now().isoformat()
     print(f"{time} WebinfoHelpers: {message}")
 
-def webInfo(container):
+def webInfo(container, aoh):
     __logger("Started")
-    aoh = AsyncOledHelper()
     aoh.addText("CPU: ?")
     aoh.addText("MODEM: ?")
     aoh.addText("SIGNAL: ?")
     aoh.addText("CONNECT: ?")
-    aoh.addText("UP: ? DOWN: ?")
+    aoh.addText("DOWN: ?")
+    aoh.addText("UP: ?")
     global timings, timings_length, modem, debug
     debug = True
     update_time = 0.2
@@ -74,11 +74,12 @@ def webInfo(container):
             online = "FAIL"
         else:
             online = "OK"
-        aoh.editText(f"CPU: {sys_utils.get_cpu_temp()}", 0)
-        aoh.editText(f"MODEM: {temp}", 1)
-        aoh.editText(f"SIGNAL: {signal_strength}", 2)
-        aoh.editText(f"CONNECT: {online}", 3)
-        aoh.editText(f"UP: {bw[1]} DOWN: {bw[0]}", 4)
+        aoh.editText(f"Cpu: {sys_utils.get_cpu_temp()}", 0)
+        aoh.editText(f"Modem: {temp}", 1)
+        aoh.editText(f"SIG: {signal_strength}", 2)
+        aoh.editText(f"INET: {online}", 3)
+        aoh.editText(f"DOWN: {bw[0]}", 4)
+        aoh.editText(f"UP: {bw[1]}", 5)
         time.sleep(update_time)
   
   
