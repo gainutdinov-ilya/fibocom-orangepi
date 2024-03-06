@@ -15,3 +15,8 @@
 
 # IS TEST VERSION
 This version may be unstable, use it with caution!
+
+## How to use
+
+Clone this repo to /opt and rename into /opt/fibocom or create link
+Install dependencies from requirements.txt
