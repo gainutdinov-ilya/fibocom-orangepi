@@ -26,7 +26,7 @@ var SignalChart = new Chart(ctxSignal, {
 
 function updateSignalChart(temp_values, timestamps) {
     temp_values = temp_values.map(function (value) {
-        return Number.parseFloat(value);
+        return Number.parseFloat(value[0]);
     });
     SignalChart.data.datasets[0].data = temp_values;
     SignalChart.data.labels = timestamps;

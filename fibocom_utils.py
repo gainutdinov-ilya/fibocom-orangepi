@@ -143,27 +143,22 @@ def get_connected_modem() -> int:
 def get_modem_temp():
     global modem
     get_connected_modem()
-    out = __invoke_modem_command(modem, "AT+MTSM=1", 1)
-    re_rule = r"'[\s\d\w\D]*"
-    result = re.findall(re_rule, out)
-    if len(result) == 0:
+    execResult = __invoke_modem_command(modem, "AT+MTSM=1", 1)
+    arTemp = re.findall(r"[0-9]{2}", execResult)
+    if len(arTemp) != 1:
         return -1
-    
-    temp = re.findall(r"[0-9]{2}", result.pop()).pop()
-    return temp
+    return arTemp.pop()
 
 def get_signal_strength():
     global modem
     get_connected_modem()
-    out = __invoke_modem_command(modem, "AT+RSRP?", 0)
-    re_match_numbers = r"[\d.]*,"
-    parsed_numbers = re.findall(re_match_numbers, out)
-    if len(parsed_numbers) < 3:
-        return -130
-    signal_strength = parsed_numbers[2]
-    signal_strength = signal_strength.replace(",",'')
-    signal_strength = f"-{signal_strength}"
-    return signal_strength
+    execResult = __invoke_modem_command(modem, "AT+RSRP?", 0)
+    reRuleParseNumbers = r"[-\d.]+"
+    signalSthrengthMetrics = re.findall(reRuleParseNumbers, execResult)
+    if len(signalSthrengthMetrics) != 15:
+        return [0,0,0,0]
+    arResult = [signalSthrengthMetrics[2], signalSthrengthMetrics[5], signalSthrengthMetrics[8], signalSthrengthMetrics[11], signalSthrengthMetrics[14]]
+    return arResult
 
 def get_signal_metics():
     global modem
@@ -248,7 +243,11 @@ def __connection_watcher():
 
 
 def print_help():
-    print("?")
+    print(''' 
+    Fibocom utils
+    --restart Sends AT+CFUN=15 to connected modem 
+    --help Prints this message
+    ''')
 
 if __name__ == "__main__":
     debug = True
