@@ -154,10 +154,11 @@ def get_signal_strength():
     get_connected_modem()
     execResult = __invoke_modem_command(modem, "AT+RSRP?", 0)
     reRuleParseNumbers = r"[-\d.]+"
-    signalSthrengthMetrics = re.findall(reRuleParseNumbers, execResult)
-    if len(signalSthrengthMetrics) != 15:
-        return [0,0,0,0]
-    arResult = [signalSthrengthMetrics[2], signalSthrengthMetrics[5], signalSthrengthMetrics[8], signalSthrengthMetrics[11], signalSthrengthMetrics[14]]
+    signalStrengthMetrics = re.findall(reRuleParseNumbers, execResult)
+    arResult = []
+    for signalStrengthMetric in signalStrengthMetrics:
+        if signalStrengthMetric.startswith('-'):
+            arResult.append(signalStrengthMetric)
     return arResult
 
 def get_signal_metics():
@@ -259,3 +260,4 @@ if __name__ == "__main__":
         restart_modem()
     else:
         print_help()
+
