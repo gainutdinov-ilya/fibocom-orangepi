@@ -11,7 +11,7 @@
 * Linux kernel 5.4+
 * cdc_acm + cdc_ncm kernel modules
 * Python3.1x + pip
-* USB 2.0 or usb3.0
+* USB 2.0 or USB 3.0
 
 # IS TEST VERSION
 This version may be unstable, use it with caution!
